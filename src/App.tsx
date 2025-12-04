@@ -59,7 +59,11 @@ function App() {
 
       <main className="app-main">
         <div className="container">
-          <PDFUploader onFileUpload={handleFileUpload} isProcessing={isProcessing} />
+          <PDFUploader 
+            onFileUpload={handleFileUpload} 
+            onError={setError}
+            isProcessing={isProcessing} 
+          />
 
           {error && (
             <div className="error-message">

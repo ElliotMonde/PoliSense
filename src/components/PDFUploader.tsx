@@ -2,20 +2,21 @@ import React, { useCallback } from 'react';
 
 interface PDFUploaderProps {
   onFileUpload: (file: File) => void;
+  onError: (error: string) => void;
   isProcessing: boolean;
 }
 
-const PDFUploader: React.FC<PDFUploaderProps> = ({ onFileUpload, isProcessing }) => {
+const PDFUploader: React.FC<PDFUploaderProps> = ({ onFileUpload, onError, isProcessing }) => {
   const handleFileChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
       if (file && file.type === 'application/pdf') {
         onFileUpload(file);
       } else if (file) {
-        alert('Please upload a PDF file');
+        onError('Please upload a PDF file');
       }
     },
-    [onFileUpload]
+    [onFileUpload, onError]
   );
 
   const handleDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
@@ -32,10 +33,10 @@ const PDFUploader: React.FC<PDFUploaderProps> = ({ onFileUpload, isProcessing })
       if (file && file.type === 'application/pdf') {
         onFileUpload(file);
       } else if (file) {
-        alert('Please upload a PDF file');
+        onError('Please upload a PDF file');
       }
     },
-    [onFileUpload]
+    [onFileUpload, onError]
   );
 
   return (

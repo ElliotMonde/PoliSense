@@ -4,6 +4,13 @@ import type { BiasAnalysis, BiasedSentence } from '../types';
 // Set up PDF.js worker - use local worker file
 pdfjsLib.GlobalWorkerOptions.workerSrc = '/assets/pdf.worker.min.mjs';
 
+// Constants
+const MIN_SENTENCE_LENGTH = 20;
+
+interface TextItem {
+  str: string;
+}
+
 /**
  * Extract text from a PDF file
  */
@@ -17,7 +24,7 @@ export async function extractTextFromPDF(file: File): Promise<string> {
     const page = await pdf.getPage(i);
     const textContent = await page.getTextContent();
     const pageText = textContent.items
-      .map((item: any) => item.str)
+      .map((item) => (item as TextItem).str)
       .join(' ');
     fullText += pageText + '\n';
   }
@@ -92,7 +99,7 @@ function splitIntoSentences(text: string): string[] {
   return text
     .split(/[.!?]+/)
     .map(s => s.trim())
-    .filter(s => s.length > 20); // Filter out very short fragments
+    .filter(s => s.length > MIN_SENTENCE_LENGTH); // Filter out very short fragments
 }
 
 /**
