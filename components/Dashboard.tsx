@@ -1,0 +1,181 @@
+import React from 'react';
+import { AnalysisResult } from '../types';
+import GaugeChart from './GaugeChart';
+import ChatInterface from './ChatInterface';
+import { Newspaper, FileText, AlertCircle, Calendar, Clock, BookOpen, ScrollText, ShieldCheck, HelpCircle } from 'lucide-react';
+
+interface DashboardProps {
+  result: AnalysisResult;
+  onReset: () => void;
+  pdfBase64: string | null;
+}
+
+const Dashboard: React.FC<DashboardProps> = ({ result, onReset, pdfBase64 }) => {
+  // Create a unique ID for the chat history based on the article content metadata
+  // This allows the history to persist if the user comes back to the same article
+  const chatId = React.useMemo(() => {
+    if (!result.metadata) return 'default-chat';
+    const cleanTitle = result.metadata.title.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+    const cleanDate = result.metadata.publishedDate.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+    return `chat_${cleanTitle}_${cleanDate}`;
+  }, [result.metadata]);
+
+  return (
+    <div className="w-full max-w-6xl mx-auto p-6 space-y-6 pb-24">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-2xl font-bold text-gray-800">Analysis Results Dashboard</h2>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        {/* Left Column: Metadata, Gauge and Summary */}
+        <div className="space-y-6">
+          
+          {/* Article Details Card */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+              <ScrollText className="w-5 h-5 text-indigo-600" />
+              Article Details
+            </h3>
+            
+            <div className="space-y-4">
+                <div>
+                    <p className="text-xs text-gray-400 uppercase font-semibold tracking-wider mb-1">Headline</p>
+                    <p className="text-lg font-semibold text-gray-900 leading-snug">{result.metadata.title}</p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 pt-2">
+                    <div className="flex items-start gap-3">
+                        <div className="p-2 bg-indigo-50 rounded-lg">
+                            <Newspaper className="w-4 h-4 text-indigo-600" />
+                        </div>
+                        <div>
+                            <p className="text-xs text-gray-500 font-medium">Outlet</p>
+                            <p className="text-sm font-semibold text-gray-800">{result.metadata.outlet}</p>
+                        </div>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                        <div className="p-2 bg-indigo-50 rounded-lg">
+                            <Calendar className="w-4 h-4 text-indigo-600" />
+                        </div>
+                        <div>
+                            <p className="text-xs text-gray-500 font-medium">Published</p>
+                            <p className="text-sm font-semibold text-gray-800">{result.metadata.publishedDate}</p>
+                        </div>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                        <div className="p-2 bg-indigo-50 rounded-lg">
+                            <BookOpen className="w-4 h-4 text-indigo-600" />
+                        </div>
+                        <div>
+                            <p className="text-xs text-gray-500 font-medium">Word Count</p>
+                            <p className="text-sm font-semibold text-gray-800">{result.metadata.wordCount.toLocaleString()} words</p>
+                        </div>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                        <div className="p-2 bg-indigo-50 rounded-lg">
+                            <Clock className="w-4 h-4 text-indigo-600" />
+                        </div>
+                        <div>
+                            <p className="text-xs text-gray-500 font-medium">Read Time</p>
+                            <p className="text-sm font-semibold text-gray-800">{result.metadata.readTime}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+          </div>
+
+          {/* Political Tier Card */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h3 className="text-lg font-bold text-gray-800 mb-4">Article Political Tier</h3>
+            <GaugeChart 
+              score={result.politicalScore} 
+              label={result.politicalLabel}
+              percentage={result.leaningPercentage}
+              direction={result.leaningDirection}
+            />
+
+            {/* Confidence Score Section */}
+            <div className="mt-8 pt-6 border-t border-gray-100">
+                <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                        <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                        <span className="text-sm font-semibold text-gray-700">AI Confidence Score</span>
+                        <div className="group relative">
+                             <HelpCircle className="w-3.5 h-3.5 text-gray-400 cursor-help" />
+                             <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 p-2 bg-gray-800 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                This score reflects the AI's certainty based on linguistic clarity and evidence strength. Higher scores indicate clearer bias signals.
+                             </div>
+                        </div>
+                    </div>
+                    <span className="text-lg font-bold text-emerald-600">
+                        {Math.round(result.confidenceScore * 100)}%
+                    </span>
+                </div>
+                <div className="w-full bg-gray-100 rounded-full h-2 mb-2">
+                    <div 
+                        className="bg-emerald-500 h-2 rounded-full transition-all duration-1000 ease-out"
+                        style={{ width: `${result.confidenceScore * 100}%` }}
+                    ></div>
+                </div>
+                <p className="text-xs text-gray-500 italic">
+                    {result.confidenceReasoning}
+                </p>
+            </div>
+          </div>
+
+          {/* Rhetorical Analysis Card */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h3 className="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
+              <FileText className="w-5 h-5 text-blue-600" />
+              AI Rhetorical Analysis
+            </h3>
+            <p className="text-gray-600 leading-relaxed text-sm md:text-base">
+              {result.summary}
+            </p>
+          </div>
+          
+          <button 
+            onClick={onReset}
+            className="w-full py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors"
+          >
+            Analyze Another Article
+          </button>
+        </div>
+
+        {/* Right Column: Influential Sentences */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 h-fit">
+          <h3 className="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2">
+            <AlertCircle className="w-5 h-5 text-red-500" />
+            Key Influential Sentences (Top 5 by Weight)
+          </h3>
+          
+          <div className="space-y-4">
+            {result.topSentences.map((item, index) => (
+              <div 
+                key={index} 
+                className="bg-red-50 border border-red-100 rounded-lg p-4 transition-all hover:shadow-md"
+              >
+                <p className="text-gray-800 font-medium text-sm mb-3">"{item.text}"</p>
+                <div className="flex items-center gap-2">
+                   <div className="bg-red-200 text-red-800 text-xs font-bold px-2 py-1 rounded flex items-center gap-1">
+                     <span className="text-xs">Impact Score:</span>
+                     <span>{item.impactScore}/10</span>
+                   </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Chat Interface with unique ID for persistence */}
+      {pdfBase64 && <ChatInterface pdfBase64={pdfBase64} chatId={chatId} />}
+    </div>
+  );
+};
+
+export default Dashboard;
