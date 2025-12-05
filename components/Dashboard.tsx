@@ -105,10 +105,10 @@ const Dashboard: React.FC<DashboardProps> = ({ result, onReset, pdfBase64 }) => 
                         <ShieldCheck className="w-4 h-4 text-emerald-600" />
                         <span className="text-sm font-semibold text-gray-700">AI Confidence Score</span>
                         <div className="group relative">
-                             <HelpCircle className="w-3.5 h-3.5 text-gray-400 cursor-help" />
-                             <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 p-2 bg-gray-800 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                              <HelpCircle className="w-3.5 h-3.5 text-gray-400 cursor-help" />
+                              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 p-2 bg-gray-800 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
                                 This score reflects the AI's certainty based on linguistic clarity and evidence strength. Higher scores indicate clearer bias signals.
-                             </div>
+                              </div>
                         </div>
                     </div>
                     <span className="text-lg font-bold text-emerald-600">
@@ -161,10 +161,10 @@ const Dashboard: React.FC<DashboardProps> = ({ result, onReset, pdfBase64 }) => 
               >
                 <p className="text-gray-800 font-medium text-sm mb-3">"{item.text}"</p>
                 <div className="flex items-center gap-2">
-                   <div className="bg-red-200 text-red-800 text-xs font-bold px-2 py-1 rounded flex items-center gap-1">
-                     <span className="text-xs">Impact Score:</span>
-                     <span>{item.impactScore}/10</span>
-                   </div>
+                    <div className="bg-red-200 text-red-800 text-xs font-bold px-2 py-1 rounded flex items-center gap-1">
+                      <span className="text-xs">Impact Score:</span>
+                      <span>{item.impactScore}/10</span>
+                    </div>
                 </div>
               </div>
             ))}
