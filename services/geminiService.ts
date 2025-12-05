@@ -18,19 +18,19 @@ export const analyzePdfBias = async (base64Pdf: string): Promise<AnalysisResult>
        - Estimate the **Read Time** (e.g., "5 min read" based on 200 wpm).
 
     2. **Bias Analysis**:
-       - Determine the political position on a spectrum from -100 (Far Left) to 100 (Far Right).
-       - 0 represents a perfectly neutral Center.
-       - Provide a numerical score (-100 to 100).
-       - Provide a categorical label (e.g., Far-Left, Center-Left, Center, Center-Right, Far-Right).
-       - Calculate the leaning percentage (absolute value).
-       - Provide a concise summary (max 100 words) of the rhetorical analysis explaining *why* it fits this classification.
-       - Identify the top 5 most influential sentences that indicate this bias, rated 1-10 on impact.
+      - Determine the political position on a spectrum from -100 (Far Left) to 100 (Far Right).
+      - 0 represents a perfectly neutral Center.
+      - Provide a numerical score (-100 to 100).
+      - Provide a categorical label (e.g., Far-Left, Center-Left, Center, Center-Right, Far-Right).
+      - Calculate the leaning percentage (absolute value).
+      - Provide a concise summary (max 100 words) of the rhetorical analysis explaining *why* it fits this classification.
+      - Identify the top 5 most influential sentences that indicate this bias, rated 1-10 on impact.
     
     3. **Confidence Assessment**:
-       - Provide a **Confidence Score** from 0.0 to 1.0 indicating how certain you are of this analysis.
-       - Higher scores (e.g., 0.9) mean the text has clear, explicit political markers.
-       - Lower scores (e.g., 0.5) mean the text is ambiguous, short, or lacks strong signals.
-       - Provide a short reasoning for this confidence score.
+      - Provide a **Confidence Score** from 0.0 to 1.0 indicating how certain you are of this analysis.
+      - Higher scores (e.g., 0.9) mean the text has clear, explicit political markers.
+      - Lower scores (e.g., 0.5) mean the text is ambiguous, short, or lacks strong signals.
+      - Provide a short reasoning for this confidence score.
   `;
 
   try {
