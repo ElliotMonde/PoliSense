@@ -3,7 +3,8 @@ import { Newspaper } from 'lucide-react';
 import FileUpload from './components/FileUpload';
 import Dashboard from './components/Dashboard';
 import { AppState, AnalysisResult } from './types';
-import { analyzePdfBias } from './services/geminiService';
+import { uploadAndAnalyzeFile } from './services/apiService';
+import { analyzePdfMetadataAndSummary } from './services/geminiService';
 
 const App: React.FC = () => {
   const [appState, setAppState] = useState<AppState>(AppState.UPLOAD);
@@ -23,7 +24,7 @@ const App: React.FC = () => {
     setError(null);
   };
 
-  const triggerAnalysis = async () => {
+    const triggerAnalysis = async () => {
     if (!selectedFile) return;
 
     setAppState(AppState.ANALYZING);
@@ -35,9 +36,61 @@ const App: React.FC = () => {
       try {
         const base64String = (reader.result as string).split(',')[1];
         setPdfBase64(base64String); // Store for ChatInterface
-        const analysis = await analyzePdfBias(base64String);  // Call the service from geminiService
-        setResult(analysis);  // Store the result
-        setAppState(AppState.RESULTS); 
+
+        // Step 1: Run Backend Analysis (Leaning & Bias)
+        const backendResult = await uploadAndAnalyzeFile(selectedFile);
+
+        // Process Backend Results
+        const { leaning, bias } = backendResult;
+        
+        // Calculate Political Score (-100 to 100)
+        // Assuming probabilities are [Left, Center, Right]
+        const pLeft = leaning.probabilities[0] || 0;
+        const pCenter = leaning.probabilities[1] || 0;
+        const pRight = leaning.probabilities[2] || 0;
+        
+        const politicalScore = (pRight - pLeft) * 100;
+        
+        // Determine Label
+        let politicalLabel = "Center";
+        if (leaning.predicted_class_id === 0) politicalLabel = "Left";
+        if (leaning.predicted_class_id === 2) politicalLabel = "Right";
+        
+        // Determine Direction
+        let leaningDirection: 'Left' | 'Right' | 'Center' = 'Center';
+        if (politicalScore < -10) leaningDirection = 'Left';
+        if (politicalScore > 10) leaningDirection = 'Right';
+
+        // Map Sentences
+        const topSentences = bias.top_biased_sentences.map(s => ({
+          text: s.sentence,
+          impactScore: s.confidence_score * 10, // Scale 0-1 to 0-10
+          reasoning: `Model confidence: ${(s.confidence_score * 100).toFixed(1)}%`
+        }));
+
+        // Step 2: Run Gemini Analysis (Metadata & Summary/Explanation)
+        // Pass the backend results to Gemini so it can explain them
+        const geminiResult = await analyzePdfMetadataAndSummary(base64String, {
+            politicalLabel,
+            politicalScore,
+            topSentences: topSentences.map(s => s.text)
+        });
+
+        // Construct Final Result
+        const finalResult: AnalysisResult = {
+          metadata: geminiResult.metadata as any, // Type assertion as Gemini partial might be missing fields strictly
+          summary: geminiResult.summary || "No summary available.",
+          politicalScore,
+          politicalLabel,
+          leaningPercentage: Math.abs(politicalScore),
+          leaningDirection,
+          topSentences,
+          confidenceScore: Math.max(pLeft, pCenter, pRight),
+          confidenceReasoning: `The model is ${(Math.max(pLeft, pCenter, pRight) * 100).toFixed(1)}% confident in this classification.`
+        };
+
+        setResult(finalResult);
+        setAppState(AppState.RESULTS);
       } catch (err: any) {
         console.error(err);
         setError(err.message || "Failed to analyze the PDF. Please try again.");
@@ -123,7 +176,7 @@ const App: React.FC = () => {
       {/* Footer */}
       <footer className="bg-white border-t border-gray-200 py-6">
         <div className="max-w-7xl mx-auto px-6 text-center text-gray-500 text-sm">
-          PoliSense. SUTD 50.040 NLP Project &copy; 2025.
+          &copy; {new Date().getFullYear()} PoliSense AI for NLP Project. Analysis using our fine-tuned models, summarisation powered by Google Gemini 2.5.
         </div>
       </footer>
     </div>

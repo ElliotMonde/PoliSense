@@ -10,9 +10,9 @@ interface GaugeChartProps {
 
 const GaugeChart: React.FC<GaugeChartProps> = ({ score, label, percentage, direction }) => {
   // Normalize score (-100 to 100) to angle (180 to 0)
-  // -100 (Left) = 180 deg
+  // -100 (Left) = 0 deg
   // 0 (Center) = 90 deg
-  // 100 (Right) = 0 deg
+  // 100 (Right) = 180 deg
   
   // Map input score to 0-100 range for the gauge needle position
   const normalizedScore = (score + 100) / 2; // 0 to 100
@@ -22,7 +22,7 @@ const GaugeChart: React.FC<GaugeChartProps> = ({ score, label, percentage, direc
   // Here we will use a single slice with a gradient fill.
   const data = [{ name: 'Range', value: 100 }];
   
-  const needleRotation = 180 - (normalizedScore / 100) * 180;
+  const needleRotation = (normalizedScore / 100) * 180;
 
   return (
     <div className="relative w-full h-64 flex flex-col items-center justify-center">
