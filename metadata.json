@@ -1,0 +1,5 @@
+{
+  "name": "PoliSenseAI",
+  "description": "An advanced AI-powered platform to analyze political bias, sentiment, and rhetorical patterns in news article PDFs.",
+  "requestFramePermissions": []
+}
