@@ -68,6 +68,9 @@ const App: React.FC = () => {
           reasoning: `Model confidence: ${(s.confidence_score * 100).toFixed(1)}%`
         }));
 
+        // Percentage of sentences that are biased
+        const percentageBiased = bias.percentage_biased;
+
         // Step 2: Run Gemini Analysis (Metadata & Summary/Explanation)
         // Pass the backend results to Gemini so it can explain them
         const geminiResult = await analyzePdfMetadataAndSummary(base64String, {
@@ -84,6 +87,7 @@ const App: React.FC = () => {
           politicalLabel,
           leaningPercentage: Math.abs(politicalScore),
           leaningDirection,
+          percentageBiased,
           topSentences,
           confidenceScore: Math.max(pLeft, pCenter, pRight),
           confidenceReasoning: `The model is ${(Math.max(pLeft, pCenter, pRight) * 100).toFixed(1)}% confident in this classification.`

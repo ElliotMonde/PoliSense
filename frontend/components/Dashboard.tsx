@@ -148,27 +148,53 @@ const Dashboard: React.FC<DashboardProps> = ({ result, onReset, pdfBase64 }) => 
         </div>
 
         {/* Right Column: Influential Sentences */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 h-fit">
-          <h3 className="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2">
-            <AlertCircle className="w-5 h-5 text-red-500" />
-            Key Influential Sentences (Top 5 by Weight)
-          </h3>
+        {/* Right Column: Bias Stats & Influential Sentences */}
+        <div className="space-y-6">
           
-          <div className="space-y-4">
-            {result.topSentences.map((item, index) => (
-              <div 
-                key={index} 
-                className="bg-red-50 border border-red-100 rounded-lg p-4 transition-all hover:shadow-md"
-              >
-                <p className="text-gray-800 font-medium text-sm mb-3">"{item.text}"</p>
-                <div className="flex items-center gap-2">
-                    <div className="bg-red-200 text-red-800 text-xs font-bold px-2 py-1 rounded flex items-center gap-1">
-                      <span className="text-xs">Impact Score:</span>
-                      <span>{item.impactScore}/10</span>
-                    </div>
+          {/* Bias Intensity Card */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+              <AlertCircle className="w-5 h-5 text-orange-500" />
+              Bias Intensity
+            </h3>
+            <div className="flex items-center justify-between mb-2">
+                <span className="text-gray-600 font-medium">Sentences Flagged as Biased</span>
+                <span className="text-2xl font-bold text-orange-600">{result.percentageBiased}%</span>
+            </div>
+            <div className="w-full bg-gray-100 rounded-full h-3">
+                <div 
+                    className="bg-orange-500 h-3 rounded-full transition-all duration-1000 ease-out"
+                    style={{ width: `${Math.min(result.percentageBiased, 100)}%` }}
+                ></div>
+            </div>
+            <p className="text-xs text-gray-500 mt-2 italic">
+                {result.percentageBiased}% of the sentences in this article were detected as having biased phrasing.
+            </p>
+          </div>
+
+          {/* Key Influential Sentences Card */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 h-fit">
+            <h3 className="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2">
+              <AlertCircle className="w-5 h-5 text-red-500" />
+              Key Influential Sentences (Top 5 by Weight)
+            </h3>
+            
+            <div className="space-y-4">
+              {result.topSentences.map((item, index) => (
+                <div 
+                  key={index} 
+                  className="bg-red-50 border border-red-100 rounded-lg p-4 transition-all hover:shadow-md"
+                >
+                  <p className="text-gray-800 font-medium text-sm mb-3">"{item.text}"</p>
+                  <div className="flex items-center gap-2">
+                      <div className="bg-red-200 text-red-800 text-xs font-bold px-2 py-1 rounded flex items-center gap-1">
+                        <span className="text-xs">Impact Score:</span>
+                        <span>{item.impactScore}/10</span>
+                      </div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </div>
