@@ -19,6 +19,7 @@ export interface AnalysisResult {
   leaningPercentage: number; // 0 to 100 absolute magnitude
   leaningDirection: 'Left' | 'Right' | 'Center';
   summary: string;
+  percentageBiased: number;
   topSentences: InfluentialSentence[];
   confidenceScore: number; // 0.0 to 1.0
   confidenceReasoning: string;
@@ -43,6 +44,7 @@ export interface BackendBiasItem {
 }
 
 export interface BackendBias {
+  percentage_biased: number;
   top_biased_sentences: BackendBiasItem[];
 }
 
